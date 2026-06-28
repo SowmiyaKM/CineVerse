@@ -62,10 +62,8 @@ def lock_seats(request, show_id):
                 seat.save()
 
         amount = seats.count() * 150 * 100
-
         order = create_razorpay_order(amount)
 
-        # 🔥 FIX: pass IDs + numbers BOTH
         seat_data = [
             {
                 "id": seat.id,
@@ -83,6 +81,7 @@ def lock_seats(request, show_id):
         })
 
     return redirect("/")
+
 
 # ----------------------------
 # CONFIRM BOOKING (POST PAYMENT)
@@ -112,11 +111,6 @@ def confirm_booking(request, show_id):
                     expired = True
 
             if expired:
-                for seat in seats:
-                    seat.status = "booked"
-                    seat.booked_at = timezone.now()
-                    seat.locked_until = None
-                    seat.save(update_fields=["status", "booked_at", "locked_until"])
                 return render(request, "booking/timeout.html")
 
             for seat in seats:
@@ -125,7 +119,6 @@ def confirm_booking(request, show_id):
                 seat.locked_until = None
                 seat.save()
 
-        # CREATE BOOKING
         if seats.exists() and customer_email:
 
             booking = Booking.objects.create(
@@ -136,11 +129,11 @@ def confirm_booking(request, show_id):
                 theater_name="MovieMax Cinema"
             )
 
-            # EMAIL TRIGGER
-            send_booking_email_async(booking)
+            # ✅ FIX: safe email trigger AFTER DB commit
+            transaction.on_commit(lambda: send_booking_email_async(booking))
 
         return render(request, "booking/success.html", {
-            "seats": seats
+            "seats": list(seats.values("seat_number"))
         })
 
     return redirect("/")
@@ -188,10 +181,8 @@ def razorpay_webhook(request):
 
         mark_processed(payment_id)
 
-        seats = Seat.objects.filter(
-            status="locked",
-            locked_until__isnull=False
-        )
+        # safe booking update (no accidental full overwrite logic)
+        seats = Seat.objects.filter(status="locked")
 
         for seat in seats:
             seat.status = "booked"
