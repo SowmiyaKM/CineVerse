@@ -61,19 +61,28 @@ def lock_seats(request, show_id):
                 seat.locked_until = timezone.now() + timezone.timedelta(minutes=2)
                 seat.save()
 
-        amount = seats.count() * 150 * 100  # paise
+        amount = seats.count() * 150 * 100
+
         order = create_razorpay_order(amount)
+
+        # 🔥 FIX: pass IDs + numbers BOTH
+        seat_data = [
+            {
+                "id": seat.id,
+                "seat_number": seat.seat_number
+            }
+            for seat in seats
+        ]
 
         return render(request, "booking/confirm.html", {
             "show_id": show_id,
-            "seats": seat_ids,
-            "order_id": order.get("id"),
+            "seats": seat_data,
+            "order_id": order["id"],
             "amount": amount,
             "RAZORPAY_KEY_ID": settings.RAZORPAY_KEY_ID
         })
 
     return redirect("/")
-
 
 # ----------------------------
 # CONFIRM BOOKING (POST PAYMENT)
@@ -104,9 +113,10 @@ def confirm_booking(request, show_id):
 
             if expired:
                 for seat in seats:
-                    seat.status = "available"
+                    seat.status = "booked"
+                    seat.booked_at = timezone.now()
                     seat.locked_until = None
-                    seat.save()
+                    seat.save(update_fields=["status", "booked_at", "locked_until"])
                 return render(request, "booking/timeout.html")
 
             for seat in seats:
@@ -178,7 +188,10 @@ def razorpay_webhook(request):
 
         mark_processed(payment_id)
 
-        seats = Seat.objects.filter(status="locked")
+        seats = Seat.objects.filter(
+            status="locked",
+            locked_until__isnull=False
+        )
 
         for seat in seats:
             seat.status = "booked"
