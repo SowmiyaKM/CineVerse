@@ -41,6 +41,8 @@ def show_detail(request, show_id):
 # LOCK SEATS + CREATE ORDER
 # ----------------------------
 def lock_seats(request, show_id):
+    print("ORDER DEBUG:", order)
+    print("ORDER ID:", order.get("id"))
 
     if request.method == "POST":
 
