@@ -9,9 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 def send_booking_email_async(booking):
-    """
-    Safe version: no threading (important for Render / production stability)
-    """
+    # ❗ FIX: remove threading completely (Render-safe)
     send_booking_email(booking)
 
 
@@ -22,7 +20,6 @@ def send_booking_email(booking):
     for attempt in range(max_retries):
 
         try:
-
             html_message = render_to_string(
                 "booking/email_confirmation.html",
                 {
@@ -41,29 +38,15 @@ def send_booking_email(booking):
                 to=[booking.email]
             )
 
-            email.attach_alternative(
-                html_message,
-                "text/html"
-            )
-
-            logger.info(f"Sending email to {booking.email}")
-
+            email.attach_alternative(html_message, "text/html")
             email.send()
 
             booking.email_sent = True
             booking.save()
-
-            logger.info(f"Email sent successfully to {booking.email}")
-
             return
 
         except Exception as e:
-
-            booking.retry_count = (booking.retry_count or 0) + 1
+            booking.retry_count += 1
             booking.save()
-
-            logger.error(
-                f"Email delivery failed (attempt {attempt + 1}): {e}"
-            )
-
-            time.sleep(3)
+            logger.error(f"Email failed: {e}")
+            time.sleep(2)
