@@ -329,7 +329,7 @@ document.getElementById("payBtn").addEventListener("click",function(){
     }
 
     const orderId="{{ order_id|default:'' }}";
-    const amount="{{ amount|default:'' }}";
+    const amount=Number("{{ amount|default:'' }}");
     const key="{{ RAZORPAY_KEY_ID|default:'' }}";
 
     if(!orderId){
@@ -340,9 +340,9 @@ document.getElementById("payBtn").addEventListener("click",function(){
     }
 
     const seatIds=[
-        {% for seat in seats %}
-            "{{ seat.id }}",
-        {% endfor %}
+    {% for seat in seats %}
+        "{{ seat.id }}"{% if not forloop.last %},{% endif %}
+    {% endfor %}
     ];
 
     const options={
