@@ -1,24 +1,18 @@
 import logging
-import threading
 import time
 
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
 
-
 logger = logging.getLogger(__name__)
 
 
 def send_booking_email_async(booking):
-
-    thread = threading.Thread(
-        target=send_booking_email,
-        args=(booking,),
-        daemon=True
-    )
-
-    thread.start()
+    """
+    Safe version: no threading (important for Render / production stability)
+    """
+    send_booking_email(booking)
 
 
 def send_booking_email(booking):
@@ -52,21 +46,24 @@ def send_booking_email(booking):
                 "text/html"
             )
 
+            logger.info(f"Sending email to {booking.email}")
+
             email.send()
 
             booking.email_sent = True
             booking.save()
 
+            logger.info(f"Email sent successfully to {booking.email}")
+
             return
 
         except Exception as e:
 
-            booking.retry_count += 1
+            booking.retry_count = (booking.retry_count or 0) + 1
             booking.save()
 
             logger.error(
-                f"Email delivery failed: {e}"
+                f"Email delivery failed (attempt {attempt + 1}): {e}"
             )
 
             time.sleep(3)
-            
