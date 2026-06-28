@@ -41,7 +41,8 @@ def show_detail(request, show_id):
 # LOCK SEATS + CREATE ORDER
 # ----------------------------
 def lock_seats(request, show_id):
-      if request.method == "POST":
+
+    if request.method == "POST":
 
         seat_ids = request.POST.getlist("seats")
 
@@ -60,23 +61,22 @@ def lock_seats(request, show_id):
                 seat.locked_until = timezone.now() + timezone.timedelta(minutes=2)
                 seat.save()
 
-        # 💡 CREATE PAYMENT ORDER HERE (IMPORTANT FIX)
+        # 💡 CREATE PAYMENT ORDER HERE
         amount = seats.count() * 150 * 100  # paise
 
         order = create_razorpay_order(amount)
 
         from django.conf import settings
 
-    return render(request, "booking/confirm.html", {
-        "show_id": show_id,
-        "seats": seats,
-        "order_id": order["id"],
-        "amount": amount,
-        "RAZORPAY_KEY_ID": settings.RAZORPAY_KEY_ID
-    })
+        return render(request, "booking/confirm.html", {
+            "show_id": show_id,
+            "seats": seat_ids,
+            "order_id": order["id"],
+            "amount": amount,
+            "RAZORPAY_KEY_ID": settings.RAZORPAY_KEY_ID
+        })
 
     return redirect("/")
-
 
 # ----------------------------
 # CONFIRM BOOKING (POST PAYMENT)
