@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>{{ show.movie_title }}</title>
+
+    <style>
+
+        body{
+            font-family:Arial,sans-serif;
+            background:#121212;
+            color:white;
+            text-align:center;
+            padding:40px;
+        }
+
+        h1{
+            color:#ff4d4d;
+        }
+
+        .screen{
+            width:400px;
+            height:40px;
+            background:white;
+            color:black;
+            margin:20px auto 40px;
+            line-height:40px;
+            border-radius:50%;
+            font-weight:bold;
+        }
+
+        .seat-grid{
+            display:grid;
+            grid-template-columns:repeat(5,80px);
+            gap:15px;
+            justify-content:center;
+        }
+
+        .seat-box{
+            display:flex;
+            justify-content:center;
+            align-items:center;
+        }
+
+        .seat-label{
+            width:60px;
+            height:60px;
+            border-radius:10px;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            cursor:pointer;
+            font-weight:bold;
+            user-select:none;
+        }
+
+        .available{
+            background:green;
+        }
+
+        .locked{
+            background:orange;
+            cursor:not-allowed;
+        }
+
+        .booked{
+            background:red;
+            cursor:not-allowed;
+        }
+
+        input[type="checkbox"]{
+            display:none;
+        }
+
+        input[type="checkbox"]:checked + .seat-label{
+            border:3px solid yellow;
+            transform:scale(1.1);
+        }
+
+        button{
+            margin-top:30px;
+            padding:12px 25px;
+            background:#ff4d4d;
+            color:white;
+            border:none;
+            border-radius:8px;
+            cursor:pointer;
+            font-size:16px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<h1>{{ show.movie_title }}</h1>
+
+<div class="screen">
+    SCREEN
+</div>
+
+<form method="POST" action="{% url 'lock_seats' show.id %}">
+
+    {% csrf_token %}
+
+    <div class="seat-grid">
+
+        {% for seat in seats %}
+
+            <div class="seat-box">
+
+                {% if seat.status == "available" %}
+
+                    <label>
+
+                        <input
+                            type="checkbox"
+                            name="seats"
+                            value="{{ seat.id }}"
+                        >
+
+                        <div class="seat-label available">
+                            {{ seat.seat_number }}
+                        </div>
+
+                    </label>
+
+                {% elif seat.status == "locked" %}
+
+                    <div class="seat-label locked">
+                        {{ seat.seat_number }}
+                    </div>
+
+                {% else %}
+
+                    <div class="seat-label booked">
+                        {{ seat.seat_number }}
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        {% endfor %}
+
+    </div>
+
+    <button type="submit">
+        Lock Seats For 2 Minutes
+    </button>
+
+</form>
+
+</body>
+</html>

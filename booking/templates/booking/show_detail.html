@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Select Seats | CineVerse</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    background:linear-gradient(135deg,#0f172a,#111827,#020617);
+    color:white;
+    min-height:100vh;
+    padding:40px;
+}
+
+.container{
+    max-width:1200px;
+    margin:auto;
+}
+
+.header{
+    text-align:center;
+    margin-bottom:50px;
+}
+
+.header h1{
+    font-size:42px;
+    background:linear-gradient(90deg,#ef4444,#ec4899);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+.header p{
+    color:#cbd5e1;
+    margin-top:10px;
+}
+
+.screen{
+    width:80%;
+    height:18px;
+    margin:0 auto 60px;
+    background:linear-gradient(90deg,#60a5fa,#3b82f6);
+    border-radius:50px;
+    box-shadow:0 0 40px rgba(96,165,250,0.5);
+}
+
+.screen-text{
+    text-align:center;
+    margin-bottom:15px;
+    color:#94a3b8;
+    letter-spacing:3px;
+}
+
+.seat-grid{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:20px;
+    margin-bottom:50px;
+}
+
+.seat-card{
+    position:relative;
+}
+
+.seat-card input{
+    display:none;
+}
+
+.seat-label{
+    display:block;
+    text-align:center;
+    padding:20px;
+    border-radius:18px;
+    cursor:pointer;
+    font-weight:600;
+    transition:0.3s;
+    background:#1e293b;
+    border:2px solid transparent;
+}
+
+.seat-label:hover{
+    transform:translateY(-4px);
+}
+
+.seat-card input:checked + .seat-label{
+    background:linear-gradient(90deg,#22c55e,#16a34a);
+    border-color:white;
+}
+
+.booked{
+    background:#7f1d1d;
+    cursor:not-allowed;
+    opacity:0.6;
+}
+
+.locked{
+    background:#92400e;
+    cursor:not-allowed;
+    opacity:0.7;
+}
+
+.available{
+    background:#1e293b;
+}
+
+.legend{
+    display:flex;
+    justify-content:center;
+    gap:30px;
+    margin-bottom:40px;
+}
+
+.legend-item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.legend-box{
+    width:20px;
+    height:20px;
+    border-radius:6px;
+}
+
+.available-box{
+    background:#1e293b;
+}
+
+.selected-box{
+    background:#16a34a;
+}
+
+.booked-box{
+    background:#7f1d1d;
+}
+
+.locked-box{
+    background:#92400e;
+}
+
+.submit-btn{
+    display:block;
+    margin:auto;
+    border:none;
+    padding:18px 50px;
+    border-radius:18px;
+    font-size:18px;
+    font-weight:600;
+    cursor:pointer;
+    background:linear-gradient(90deg,#ef4444,#ec4899);
+    color:white;
+    transition:0.3s;
+}
+
+.submit-btn:hover{
+    transform:translateY(-5px);
+}
+
+@media(max-width:900px){
+
+    .seat-grid{
+        grid-template-columns:repeat(3,1fr);
+    }
+
+}
+
+@media(max-width:600px){
+
+    .seat-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+
+<h1>{{ show.movie.title }}</h1>
+
+<p>
+
+🎬 {{ show.show_time }}
+
+</p>
+
+</div>
+
+
+<form method="POST" action="/booking/lock/{{ show.id }}/">
+
+{% csrf_token %}
+
+<div class="screen-text">
+
+SCREEN
+
+</div>
+
+<div class="screen"></div>
+
+
+<div class="legend">
+
+<div class="legend-item">
+
+<div class="legend-box available-box"></div>
+
+Available
+
+</div>
+
+<div class="legend-item">
+
+<div class="legend-box selected-box"></div>
+
+Selected
+
+</div>
+
+<div class="legend-item">
+
+<div class="legend-box booked-box"></div>
+
+Booked
+
+</div>
+
+<div class="legend-item">
+
+<div class="legend-box locked-box"></div>
+
+Locked
+
+</div>
+
+</div>
+
+
+<div class="seat-grid">
+
+{% for seat in seats %}
+
+<div class="seat-card">
+
+{% if seat.status == 'available' %}
+
+<input
+type="checkbox"
+name="seats"
+value="{{ seat.id }}"
+id="seat{{ seat.id }}"
+>
+
+<label
+for="seat{{ seat.id }}"
+class="seat-label available"
+>
+
+🎟 {{ seat.seat_number }}
+
+</label>
+
+{% elif seat.status == 'booked' %}
+
+<label class="seat-label booked">
+
+❌ {{ seat.seat_number }}
+
+</label>
+
+{% else %}
+
+<label class="seat-label locked">
+
+🔒 {{ seat.seat_number }}
+
+</label>
+
+{% endif %}
+
+</div>
+
+{% endfor %}
+
+</div>
+
+
+<button type="submit" class="submit-btn">
+
+Lock Seats (2 Minutes)
+
+</button>
+
+</form>
+
+</div>
+
+</body>
+</html>

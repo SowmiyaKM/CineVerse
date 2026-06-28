@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>{{ movie.title }} | CineVerse</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    background:linear-gradient(135deg,#0f172a,#111827,#020617);
+    color:white;
+    min-height:100vh;
+    padding:50px;
+}
+
+.container{
+    max-width:1400px;
+    margin:auto;
+}
+
+.hero{
+    display:grid;
+    grid-template-columns:1fr 1.2fr;
+    gap:50px;
+    margin-bottom:60px;
+}
+
+.poster-section{
+    display:flex;
+    justify-content:center;
+}
+
+.poster-section img{
+    width:100%;
+    max-width:400px;
+    height:600px;
+    object-fit:cover;
+    border-radius:25px;
+    box-shadow:0 20px 50px rgba(0,0,0,0.5);
+}
+
+.info-section h1{
+    font-size:48px;
+    margin-bottom:20px;
+    background:linear-gradient(90deg,#ef4444,#ec4899);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+.description{
+    color:#cbd5e1;
+    line-height:1.8;
+    font-size:17px;
+    margin-bottom:30px;
+}
+
+.tags{
+    display:flex;
+    gap:15px;
+    margin-bottom:35px;
+}
+
+.tag{
+    background:rgba(255,255,255,0.08);
+    padding:10px 18px;
+    border-radius:30px;
+    backdrop-filter:blur(20px);
+}
+
+.trailer-box{
+    background:rgba(255,255,255,0.05);
+    backdrop-filter:blur(20px);
+    border:1px solid rgba(255,255,255,0.08);
+    padding:30px;
+    border-radius:25px;
+    margin-bottom:50px;
+}
+
+.trailer-box h2{
+    margin-bottom:25px;
+}
+
+iframe{
+    width:100%;
+    height:600px;
+    border:none;
+    border-radius:20px;
+}
+
+.youtube-btn{
+    display:inline-block;
+    margin-top:25px;
+    background:linear-gradient(90deg,#ef4444,#dc2626);
+    color:white;
+    text-decoration:none;
+    padding:14px 28px;
+    border-radius:14px;
+    font-weight:600;
+    transition:0.3s;
+}
+
+.youtube-btn:hover{
+    transform:translateY(-3px);
+}
+
+.unavailable{
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.1);
+    padding:30px;
+    border-radius:25px;
+}
+
+.unavailable h3{
+    color:#ef4444;
+    margin-bottom:15px;
+}
+
+.unavailable p{
+    color:#cbd5e1;
+    margin-bottom:20px;
+}
+
+.shows-section{
+    margin-top:40px;
+}
+
+.shows-section h2{
+    margin-bottom:30px;
+    font-size:32px;
+}
+
+.shows-grid{
+    display:flex;
+    flex-wrap:wrap;
+    gap:20px;
+}
+
+.show-btn{
+    text-decoration:none;
+    background:linear-gradient(90deg,#22c55e,#16a34a);
+    color:white;
+    padding:18px 28px;
+    border-radius:16px;
+    font-weight:600;
+    transition:0.3s;
+    box-shadow:0 10px 25px rgba(34,197,94,0.25);
+}
+
+.show-btn:hover{
+    transform:translateY(-4px);
+}
+
+.back-btn{
+    display:inline-block;
+    margin-top:60px;
+    background:#1e293b;
+    color:white;
+    text-decoration:none;
+    padding:15px 30px;
+    border-radius:14px;
+    transition:0.3s;
+}
+
+.back-btn:hover{
+    background:#334155;
+}
+
+@media(max-width:1000px){
+
+    body{
+        padding:25px;
+    }
+
+    .hero{
+        grid-template-columns:1fr;
+    }
+
+    .info-section h1{
+        font-size:36px;
+    }
+
+    iframe{
+        height:350px;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="hero">
+
+<div class="poster-section">
+
+<img src="{{ movie.poster }}">
+
+</div>
+
+<div class="info-section">
+
+<h1>{{ movie.title }}</h1>
+
+<p class="description">
+
+{{ movie.description }}
+
+</p>
+
+<div class="tags">
+
+<div class="tag">
+🎭 {{ movie.genre }}
+</div>
+
+<div class="tag">
+🌍 {{ movie.language }}
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+{% if video_id %}
+
+<div class="trailer-box">
+
+<h2>🎬 Official Trailer</h2>
+
+<iframe
+src="https://www.youtube.com/embed/{{ video_id }}"
+title="{{ movie.title }} Trailer"
+loading="lazy"
+allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+allowfullscreen>
+</iframe>
+
+<a
+href="{{ movie.trailer_url }}"
+target="_blank"
+class="youtube-btn"
+>
+
+▶ Watch on YouTube
+
+</a>
+
+</div>
+
+{% else %}
+
+<div class="unavailable">
+
+<h3>Trailer Unavailable</h3>
+
+<p>
+
+The trailer may have been removed,
+restricted, or does not support embedding.
+
+</p>
+
+<a
+href="{{ movie.trailer_url }}"
+target="_blank"
+class="youtube-btn"
+>
+
+Open on YouTube
+
+</a>
+
+</div>
+
+{% endif %}
+
+
+<div class="shows-section">
+
+<h2>🎟 Available Shows</h2>
+
+<div class="shows-grid">
+
+{% for show in shows %}
+
+<a
+href="/booking/show/{{ show.id }}/"
+class="show-btn"
+>
+
+🕒 {{ show.show_time }}
+
+</a>
+
+{% empty %}
+
+<p>No shows available.</p>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+
+<a
+href="{% url 'home' %}"
+class="back-btn"
+>
+
+← Back to Home
+
+</a>
+
+</div>
+
+</body>
+</html>

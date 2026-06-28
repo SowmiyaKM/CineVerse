@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Booking Confirmed | CineVerse</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#0f172a,#111827,#020617);
+    color:white;
+    padding:30px;
+}
+
+.ticket-container{
+    width:550px;
+    max-width:100%;
+}
+
+.ticket{
+    background:rgba(255,255,255,0.06);
+    backdrop-filter:blur(25px);
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:30px;
+    overflow:hidden;
+    box-shadow:0 25px 60px rgba(0,0,0,0.4);
+}
+
+.ticket-header{
+    background:linear-gradient(90deg,#22c55e,#16a34a);
+    text-align:center;
+    padding:40px;
+}
+
+.ticket-header h1{
+    font-size:36px;
+    margin-bottom:10px;
+}
+
+.ticket-header p{
+    opacity:0.9;
+}
+
+.ticket-body{
+    padding:40px;
+}
+
+.info-box{
+    background:#1e293b;
+    border-radius:18px;
+    padding:25px;
+    margin-bottom:30px;
+}
+
+.info-box h3{
+    margin-bottom:20px;
+    color:#f8fafc;
+}
+
+.seat{
+    background:rgba(255,255,255,0.06);
+    padding:14px;
+    border-radius:12px;
+    margin-bottom:12px;
+    font-weight:500;
+}
+
+.email-message{
+    text-align:center;
+    color:#94a3b8;
+    line-height:1.7;
+    margin-bottom:30px;
+}
+
+.buttons{
+    display:flex;
+    gap:15px;
+    justify-content:center;
+    flex-wrap:wrap;
+}
+
+.btn{
+    text-decoration:none;
+    padding:16px 28px;
+    border-radius:16px;
+    font-weight:600;
+    transition:0.3s;
+}
+
+.home-btn{
+    background:#334155;
+    color:white;
+}
+
+.home-btn:hover{
+    background:#475569;
+    transform:translateY(-3px);
+}
+
+.movies-btn{
+    background:linear-gradient(90deg,#ef4444,#ec4899);
+    color:white;
+}
+
+.movies-btn:hover{
+    transform:translateY(-3px);
+}
+
+.footer-text{
+    text-align:center;
+    margin-top:25px;
+    color:#64748b;
+    font-size:14px;
+}
+
+@media(max-width:600px){
+
+    .ticket-header h1{
+        font-size:28px;
+    }
+
+    .ticket-body{
+        padding:25px;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="ticket-container">
+
+<div class="ticket">
+
+<div class="ticket-header">
+
+<h1>✅ Booking Confirmed!</h1>
+
+<p>Your movie tickets have been successfully booked.</p>
+
+</div>
+
+
+<div class="ticket-body">
+
+<div class="info-box">
+
+<h3>🎟 Booked Seats</h3>
+
+{% for seat in seats %}
+
+<div class="seat">
+
+Seat {{ seat.seat_number }}
+
+</div>
+
+{% endfor %}
+
+</div>
+
+
+<div class="email-message">
+
+📧 A confirmation email will be sent after successful payment verification.
+
+<br><br>
+
+Thank you for choosing <b>CineVerse</b>.
+
+Enjoy your movie experience!
+
+</div>
+
+
+<div class="buttons">
+
+<a
+href="/"
+class="btn home-btn"
+>
+
+🏠 Home
+
+</a>
+
+<a
+href="/"
+class="btn movies-btn"
+>
+
+🎬 Book Another Movie
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="footer-text">
+
+Powered by CineVerse • Secure Booking Platform
+
+</div>
+
+</div>
+
+</body>
+</html>

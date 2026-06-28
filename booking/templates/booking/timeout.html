@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Reservation Expired | CineVerse</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#0f172a,#111827,#020617);
+    color:white;
+    padding:30px;
+}
+
+.container{
+    width:500px;
+    max-width:100%;
+}
+
+.card{
+    background:rgba(255,255,255,0.06);
+    backdrop-filter:blur(25px);
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:30px;
+    overflow:hidden;
+    box-shadow:0 25px 60px rgba(0,0,0,0.4);
+}
+
+.header{
+    background:linear-gradient(90deg,#ef4444,#dc2626);
+    padding:40px;
+    text-align:center;
+}
+
+.header h1{
+    font-size:36px;
+    margin-bottom:10px;
+}
+
+.header p{
+    opacity:0.9;
+}
+
+.content{
+    padding:40px;
+    text-align:center;
+}
+
+.icon{
+    font-size:70px;
+    margin-bottom:25px;
+}
+
+.message{
+    color:#cbd5e1;
+    line-height:1.8;
+    font-size:17px;
+    margin-bottom:35px;
+}
+
+.info-box{
+    background:#1e293b;
+    padding:20px;
+    border-radius:18px;
+    margin-bottom:30px;
+    color:#94a3b8;
+}
+
+.btn-group{
+    display:flex;
+    justify-content:center;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+.btn{
+    text-decoration:none;
+    padding:16px 28px;
+    border-radius:16px;
+    font-weight:600;
+    transition:0.3s;
+}
+
+.home-btn{
+    background:#334155;
+    color:white;
+}
+
+.home-btn:hover{
+    background:#475569;
+    transform:translateY(-3px);
+}
+
+.retry-btn{
+    background:linear-gradient(90deg,#ef4444,#ec4899);
+    color:white;
+}
+
+.retry-btn:hover{
+    transform:translateY(-3px);
+}
+
+.footer{
+    text-align:center;
+    margin-top:20px;
+    color:#64748b;
+    font-size:14px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="card">
+
+<div class="header">
+
+<h1>⏰ Reservation Expired</h1>
+
+<p>Seat lock time exceeded</p>
+
+</div>
+
+
+<div class="content">
+
+<div class="icon">
+
+🎟️
+
+</div>
+
+
+<div class="message">
+
+Sorry! Your 2-minute reservation window has expired.
+
+<br><br>
+
+The selected seats have been automatically released so that other users can book them.
+
+Please select your seats again to continue.
+
+</div>
+
+
+<div class="info-box">
+
+🔒 Automatic seat release ensures fair and concurrency-safe booking for all users.
+
+</div>
+
+
+<div class="btn-group">
+
+<a
+href="/"
+class="btn home-btn"
+>
+
+🏠 Home
+
+</a>
+
+
+<a
+href="javascript:history.back()"
+class="btn retry-btn"
+>
+
+🔄 Try Again
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="footer">
+
+Powered by CineVerse • Secure Movie Booking Platform
+
+</div>
+
+</div>
+
+</body>
+</html>
