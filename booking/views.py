@@ -106,6 +106,7 @@ def lock_seats(request, show_id):
 # CONFIRM BOOKING (POST PAYMENT)
 # ----------------------------
 from django.views.decorators.csrf import csrf_exempt
+
 @csrf_exempt
 def confirm_booking(request, show_id):
 
@@ -157,6 +158,7 @@ def confirm_booking(request, show_id):
 
         print("SHOW OBJECT:", seats[0].show)
         print("SEAT NUMBERS:", ", ".join([s.seat_number for s in seats]))
+
         try:
             booking = Booking.objects.create(
                 email=customer_email,
@@ -171,38 +173,32 @@ def confirm_booking(request, show_id):
         except Exception as e:
             print("BOOKING ERROR:", str(e))
             raise
-            
+
         # -------------------------
-        # EMAIL (GMAIL SMTP)
+        # EMAIL (GMAIL SMTP SAFE)
         # -------------------------
         try:
-
             print("SENDING EMAIL...")
 
             send_mail(
                 subject="🎟 Booking Confirmed - CineVerse",
-                message=f"""
-        Hello,
-
-        Your booking has been confirmed.
-
-        Movie: {booking.show.movie.title}
-        Seats: {booking.seat_numbers}
-        Theater: {booking.theater_name}
-
-        Enjoy your movie!
-
-        - CineVerse
-        """,
+                message=(
+                    f"Hello,\n\n"
+                    f"Your booking has been confirmed.\n\n"
+                    f"Movie: {booking.show.movie.title}\n"
+                    f"Seats: {booking.seat_numbers}\n"
+                    f"Theater: {booking.theater_name}\n\n"
+                    f"Enjoy your movie!\n\n"
+                    f"- CineVerse"
+                ),
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[booking.email],
-                fail_silently=False
+                fail_silently=True
             )
 
             print("EMAIL SENT SUCCESSFULLY")
 
         except Exception as e:
-
             print("EMAIL FAILED:")
             print(str(e))
 
