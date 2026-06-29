@@ -106,8 +106,10 @@ def lock_seats(request, show_id):
 # ----------------------------
 # CONFIRM BOOKING (POST PAYMENT)
 # ----------------------------
-def confirm_booking(request, show_id):
+from django.views.decorators.csrf import csrf_exempt
 
+@csrf_exempt
+def confirm_booking(request, show_id):
     if request.method == "POST":
 
         seat_ids = request.POST.getlist("seats")
