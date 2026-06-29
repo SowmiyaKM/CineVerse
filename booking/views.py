@@ -157,6 +157,9 @@ def confirm_booking(request, show_id):
         # CREATE BOOKING FIRST
         # -------------------------
         print("ENTERED BOOKING SECTION")
+
+        print("SHOW OBJECT:", seats[0].show)
+        print("SEAT NUMBERS:", ", ".join([s.seat_number for s in seats]))
         try:
             booking = Booking.objects.create(
                 email=customer_email,
