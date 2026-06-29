@@ -398,8 +398,21 @@ document.getElementById("payBtn").addEventListener("click",function(){
                 body:formData
 
             })
-            .then(function(){
-                window.location.href="/";
+            .then(function(response){
+
+                if(response.ok){
+                    window.location.replace("/");
+                }
+                else{
+                    showToast("Booking failed.");
+                }
+
+            })
+            .catch(function(error){
+
+                console.log(error);
+                showToast("Server error.");
+
             });
 
         }

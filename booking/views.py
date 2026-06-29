@@ -170,9 +170,11 @@ def confirm_booking(request, show_id):
 
             print("BOOKING CREATED:", booking.id)
 
-            transaction.on_commit(
-                lambda: send_booking_email_async(booking)
-            )
+            print("SENDING EMAIL NOW...")
+
+            send_booking_email_async(booking)
+
+            print("EMAIL FUNCTION FINISHED")
 
             print("EMAIL FUNCTION SCHEDULED")
 
