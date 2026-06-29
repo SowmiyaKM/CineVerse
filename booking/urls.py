@@ -15,6 +15,9 @@ urlpatterns = [
 
     path("payment/webhook/", razorpay_webhook),
 
+    # EMAIL TEST ROUTE
+    path("test-email/", views.test_email),
+
     # Admin Analytics Dashboard
     path(
         "admin/analytics/",

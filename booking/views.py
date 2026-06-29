@@ -1,8 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.db import transaction
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.core.mail import send_mail
 import json
 from django.conf import settings
 
@@ -11,6 +12,28 @@ from .email_service import send_booking_email_async
 from .payment_gateway import create_razorpay_order
 from .payment_utils import verify_payment_signature
 from .idempotency import is_duplicate, mark_processed
+
+
+# ----------------------------
+# TEST EMAIL
+# ----------------------------
+def test_email(request):
+
+    try:
+
+        send_mail(
+            "TEST EMAIL",
+            "If you received this, Gmail SMTP is working.",
+            settings.DEFAULT_FROM_EMAIL,
+            ["sowmiyakmk@gmail.com"],
+            fail_silently=False
+        )
+
+        return HttpResponse("EMAIL SENT SUCCESSFULLY")
+
+    except Exception as e:
+
+        return HttpResponse(f"EMAIL ERROR: {e}")
 
 
 # ----------------------------
@@ -86,6 +109,9 @@ def lock_seats(request, show_id):
 # ----------------------------
 # CONFIRM BOOKING (POST PAYMENT)
 # ----------------------------
+# ----------------------------
+# CONFIRM BOOKING (POST PAYMENT)
+# ----------------------------
 def confirm_booking(request, show_id):
 
     if request.method == "POST":
@@ -94,6 +120,12 @@ def confirm_booking(request, show_id):
         customer_email = request.POST.get("email")
         payment_id = request.POST.get("payment_id", "TEST_PAYMENT")
 
+        print("\n========== DEBUG ==========")
+        print("EMAIL:", customer_email)
+        print("SEAT IDS:", seat_ids)
+        print("PAYMENT ID:", payment_id)
+        print("===========================\n")
+
         with transaction.atomic():
 
             seats = Seat.objects.select_for_update().filter(
@@ -101,7 +133,11 @@ def confirm_booking(request, show_id):
                 status="locked"
             )
 
+            print("SEATS FOUND:", seats.count())
+            print("CUSTOMER EMAIL:", customer_email)
+
             if not seats.exists():
+                print("NO LOCKED SEATS FOUND")
                 return render(request, "booking/timeout.html")
 
             expired = False
@@ -111,6 +147,7 @@ def confirm_booking(request, show_id):
                     expired = True
 
             if expired:
+                print("SEAT LOCK EXPIRED")
                 return render(request, "booking/timeout.html")
 
             for seat in seats:
@@ -121,6 +158,8 @@ def confirm_booking(request, show_id):
 
         if seats.exists() and customer_email:
 
+            print("CREATING BOOKING OBJECT...")
+
             booking = Booking.objects.create(
                 email=customer_email,
                 show=seats[0].show,
@@ -129,15 +168,25 @@ def confirm_booking(request, show_id):
                 theater_name="MovieMax Cinema"
             )
 
-            # ✅ FIX: safe email trigger AFTER DB commit
-            transaction.on_commit(lambda: send_booking_email_async(booking))
+            print("BOOKING CREATED:", booking.id)
+
+            transaction.on_commit(
+                lambda: send_booking_email_async(booking)
+            )
+
+            print("EMAIL FUNCTION SCHEDULED")
+
+        else:
+
+            print("BOOKING NOT CREATED")
+            print("SEATS EXISTS:", seats.exists())
+            print("EMAIL VALUE:", customer_email)
 
         return render(request, "booking/success.html", {
             "seats": list(seats.values("seat_number"))
         })
 
     return redirect("/")
-
 
 # ----------------------------
 # PAYMENT ORDER API (OPTIONAL)
@@ -167,7 +216,16 @@ def razorpay_webhook(request):
 
         data = json.loads(request.body)
 
-        payment_entity = data.get("payload", {}).get("payment", {}).get("entity", {})
+        payment_entity = data.get(
+            "payload",
+            {}
+        ).get(
+            "payment",
+            {}
+        ).get(
+            "entity",
+            {}
+        )
 
         payment_id = payment_entity.get("id")
         order_id = payment_entity.get("order_id")
@@ -176,12 +234,18 @@ def razorpay_webhook(request):
         if is_duplicate(payment_id):
             return JsonResponse({"status": "duplicate ignored"})
 
-        if not verify_payment_signature(order_id, payment_id, signature):
-            return JsonResponse({"status": "invalid signature"}, status=400)
+        if not verify_payment_signature(
+            order_id,
+            payment_id,
+            signature
+        ):
+            return JsonResponse(
+                {"status": "invalid signature"},
+                status=400
+            )
 
         mark_processed(payment_id)
 
-        # safe booking update (no accidental full overwrite logic)
         seats = Seat.objects.filter(status="locked")
 
         for seat in seats:

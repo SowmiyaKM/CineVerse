@@ -4,6 +4,8 @@
 
 <title>Booking Confirmed | CineVerse</title>
 
+<meta http-equiv="refresh" content="2;url=/">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
@@ -108,18 +110,9 @@ body{
     color:white;
 }
 
-.home-btn:hover{
-    background:#475569;
-    transform:translateY(-3px);
-}
-
 .movies-btn{
     background:linear-gradient(90deg,#ef4444,#ec4899);
     color:white;
-}
-
-.movies-btn:hover{
-    transform:translateY(-3px);
 }
 
 .footer-text{
@@ -127,18 +120,6 @@ body{
     margin-top:25px;
     color:#64748b;
     font-size:14px;
-}
-
-@media(max-width:600px){
-
-    .ticket-header h1{
-        font-size:28px;
-    }
-
-    .ticket-body{
-        padding:25px;
-    }
-
 }
 
 </style>
@@ -155,10 +136,9 @@ body{
 
 <h1>✅ Booking Confirmed!</h1>
 
-<p>Your movie tickets have been successfully booked.</p>
+<p>Redirecting to home page...</p>
 
 </div>
-
 
 <div class="ticket-body">
 
@@ -169,15 +149,12 @@ body{
 {% for seat in seats %}
 
 <div class="seat">
-
 Seat {{ seat.seat_number }}
-
 </div>
 
 {% endfor %}
 
 </div>
-
 
 <div class="email-message">
 
@@ -191,33 +168,9 @@ Enjoy your movie experience!
 
 </div>
 
-
-<div class="buttons">
-
-<a
-href="/"
-class="btn home-btn"
->
-
-🏠 Home
-
-</a>
-
-<a
-href="/"
-class="btn movies-btn"
->
-
-🎬 Book Another Movie
-
-</a>
-
 </div>
 
 </div>
-
-</div>
-
 
 <div class="footer-text">
 
