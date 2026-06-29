@@ -106,8 +106,8 @@ def lock_seats(request, show_id):
 # ----------------------------
 # CONFIRM BOOKING (POST PAYMENT)
 # ----------------------------
+@csrf_exempt
 def confirm_booking(request, show_id):
-
     if request.method == "POST":
 
         seat_ids = request.POST.getlist("seats")
