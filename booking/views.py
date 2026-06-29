@@ -169,10 +169,8 @@ def confirm_booking(request, show_id):
             print("BOOKING CREATED:", booking.id)
 
         except Exception as e:
-            print("BOOKING ERROR:", e)
-            return render(request, "booking/success.html", {
-                "seats": list(seats.values("seat_number"))
-            })
+            print("BOOKING ERROR:", str(e))
+            raise
 
         # -------------------------
         # EMAIL (RESEND DEBUG)
@@ -198,10 +196,9 @@ def confirm_booking(request, show_id):
             print(response)
 
         except Exception as e:
-
             print("STEP 3: EMAIL FAILED")
             print(str(e))
-        
+            raise
 
         return render(request, "booking/success.html", {
             "seats": list(seats.values("seat_number"))
