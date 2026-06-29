@@ -410,6 +410,8 @@ document.getElementById("payBtn").addEventListener("click",function(){
 
         }
 
+    };
+
     const rzp=new Razorpay(options);
 
     rzp.on("payment.failed",function(){
