@@ -4,10 +4,11 @@ from django.db import transaction
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.mail import send_mail
+from django.conf import settings
+
 import json
-from django.conf import settings
 import resend
-from django.conf import settings
+
 from .models import Booking, Show, Seat
 from .payment_gateway import create_razorpay_order
 from .payment_utils import verify_payment_signature
@@ -173,12 +174,15 @@ def confirm_booking(request, show_id):
             })
 
         # -------------------------
-        # EMAIL (RESEND ONLY - FIXED)
+        # EMAIL (RESEND ONLY)
         # -------------------------
         try:
+
+            print("RESEND KEY:", settings.RESEND_API_KEY)
+
             resend.api_key = settings.RESEND_API_KEY
 
-            resend.Emails.send({
+            response = resend.Emails.send({
                 "from": "CineVerse <onboarding@resend.dev>",
                 "to": [booking.email],
                 "subject": f"🎟 Booking Confirmed - {booking.show.movie.title}",
@@ -190,10 +194,13 @@ def confirm_booking(request, show_id):
                 """
             })
 
-            print("EMAIL SENT VIA RESEND")
+            print("RESEND RESPONSE:")
+            print(response)
 
         except Exception as e:
-            print("RESEND EMAIL ERROR:", e)
+
+            print("RESEND EMAIL ERROR:")
+            print(str(e))
 
         return render(request, "booking/success.html", {
             "seats": list(seats.values("seat_number"))
