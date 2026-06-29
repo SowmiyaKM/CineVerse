@@ -367,6 +367,25 @@ document.getElementById("payBtn").addEventListener("click",function(){
 
         handler:function(response){
 
+            clearInterval(timerInterval);
+
+            showToast(
+                "✅ Payment successful! Redirecting...",
+                "success"
+            );
+
+            const formData = new URLSearchParams();
+
+            seatIds.forEach(function(seat){
+                formData.append("seats", seat);
+            });
+
+            formData.append("email", email);
+            formData.append(
+                "payment_id",
+                response.razorpay_payment_id
+            );
+
             fetch("/booking/confirm/{{ show_id }}/",{
 
                 method:"POST",
@@ -376,18 +395,20 @@ document.getElementById("payBtn").addEventListener("click",function(){
                     "X-CSRFToken":"{{ csrf_token }}"
                 },
 
-                body:new URLSearchParams({
-                    "seats":seatIds,
-                    "email":email,
-                    "payment_id":response.razorpay_payment_id
-                })
+                body:formData
 
             })
-            .then(()=>window.location.href="/");
+            .then(function(){
+
+                setTimeout(function(){
+
+                    window.location.href="/";
+
+                },1000);
+
+            });
 
         }
-
-    };
 
     const rzp=new Razorpay(options);
 
