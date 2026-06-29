@@ -6,7 +6,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.mail import send_mail
 import json
 from django.conf import settings
-
+import resend
+from django.conf import settings
 from .models import Booking, Show, Seat
 from .payment_gateway import create_razorpay_order
 from .payment_utils import verify_payment_signature
@@ -107,7 +108,6 @@ def lock_seats(request, show_id):
 # CONFIRM BOOKING (POST PAYMENT)
 # ----------------------------
 from django.views.decorators.csrf import csrf_exempt
-
 @csrf_exempt
 def confirm_booking(request, show_id):
 
@@ -173,24 +173,27 @@ def confirm_booking(request, show_id):
             })
 
         # -------------------------
-        # EMAIL (NON-BLOCKING, SAFE)
+        # EMAIL (RESEND ONLY - FIXED)
         # -------------------------
         try:
-            send_mail(
-                subject=f"🎟 Booking Confirmed - {booking.show.movie.title}",
-                message=f"""
-Seats: {booking.seat_numbers}
-Theater: {booking.theater_name}
-Enjoy your movie 🎬
-""",
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[booking.email],
-                fail_silently=True
-            )
-            print("EMAIL SENT")
+            resend.api_key = settings.RESEND_API_KEY
+
+            resend.Emails.send({
+                "from": "CineVerse <onboarding@resend.dev>",
+                "to": [booking.email],
+                "subject": f"🎟 Booking Confirmed - {booking.show.movie.title}",
+                "html": f"""
+                    <h2>Booking Confirmed 🎬</h2>
+                    <p><b>Seats:</b> {booking.seat_numbers}</p>
+                    <p><b>Theater:</b> {booking.theater_name}</p>
+                    <p>Enjoy your movie!</p>
+                """
+            })
+
+            print("EMAIL SENT VIA RESEND")
 
         except Exception as e:
-            print("EMAIL ERROR:", e)
+            print("RESEND EMAIL ERROR:", e)
 
         return render(request, "booking/success.html", {
             "seats": list(seats.values("seat_number"))

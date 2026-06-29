@@ -151,3 +151,5 @@ LOGGING = {
         },
     },
 }
+
+RESEND_API_KEY = "re_74t5p4uM_Ed4YYzL1DdNs8sD2VFSiwXuW"
