@@ -174,33 +174,33 @@ def confirm_booking(request, show_id):
             })
 
         # -------------------------
-        # EMAIL (RESEND ONLY)
+        # EMAIL (RESEND DEBUG)
         # -------------------------
         try:
 
-            print("RESEND KEY:", settings.RESEND_API_KEY)
-
+            print("STEP 1: SETTING API KEY")
             resend.api_key = settings.RESEND_API_KEY
 
+            print("STEP 2: SENDING EMAIL")
+
             response = resend.Emails.send({
-                "from": "CineVerse <onboarding@resend.dev>",
-                "to": [booking.email],
-                "subject": f"🎟 Booking Confirmed - {booking.show.movie.title}",
+                "from": "onboarding@resend.dev",
+                "to": booking.email,
+                "subject": "Booking Confirmed",
                 "html": f"""
-                    <h2>Booking Confirmed 🎬</h2>
-                    <p><b>Seats:</b> {booking.seat_numbers}</p>
-                    <p><b>Theater:</b> {booking.theater_name}</p>
-                    <p>Enjoy your movie!</p>
+                <h1>Booking Confirmed</h1>
+                <p>Seats: {booking.seat_numbers}</p>
                 """
             })
 
-            print("RESEND RESPONSE:")
+            print("STEP 3: EMAIL SENT")
             print(response)
 
         except Exception as e:
 
-            print("RESEND EMAIL ERROR:")
+            print("STEP 3: EMAIL FAILED")
             print(str(e))
+        
 
         return render(request, "booking/success.html", {
             "seats": list(seats.values("seat_number"))
