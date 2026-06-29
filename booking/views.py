@@ -106,8 +106,8 @@ def lock_seats(request, show_id):
 # ----------------------------
 # CONFIRM BOOKING (POST PAYMENT)
 # ----------------------------
-@csrf_exempt
 def confirm_booking(request, show_id):
+
     if request.method == "POST":
 
         seat_ids = request.POST.getlist("seats")
@@ -163,28 +163,33 @@ def confirm_booking(request, show_id):
                 print("BOOKING CREATED:", booking.id)
                 print("SENDING EMAIL NOW...")
 
-                # ✅ FIXED EMAIL (NO BROKEN ASYNC)
-                try:
-                    send_mail(
-                        subject=f"Booking Confirmed - {booking.show}",
-                        message=f"""
-Hi,
+                # ✅ FIXED EMAIL (CORRECT STRUCTURE)
+                import threading
+                from django.core.mail import send_mail
+                from django.conf import settings
 
-Your booking is confirmed!
+                def send_email(email, booking_obj):
+                    try:
+                        send_mail(
+                            subject=f"Booking Confirmed - {booking_obj.show}",
+                            message=f"""
+                            Seats: {booking_obj.seat_numbers}
+                            Theater: {booking_obj.theater_name}
+                            Enjoy your movie 🎬
+                            """,
+                            from_email=settings.DEFAULT_FROM_EMAIL,
+                            recipient_list=[email],
+                            fail_silently=False
+                        )
+                    except Exception as e:
+                        print("EMAIL ERROR:", e)
 
-Seats: {booking.seat_numbers}
-Theater: {booking.theater_name}
+                threading.Thread(
+                    target=send_email,
+                    args=(booking.email, booking)
+                ).start()
 
-Enjoy your movie 🎬
-""",
-                        from_email=settings.DEFAULT_FROM_EMAIL,
-                        recipient_list=[booking.email],
-                        fail_silently=False
-                    )
-                except Exception as e:
-                    print("EMAIL SEND ERROR:", e)
-
-                print("EMAIL SENT (OR ATTEMPTED)")
+                print("EMAIL TRIGGERED")
 
             except Exception as e:
                 print("BOOKING/EMAIL ERROR:", str(e))
@@ -194,7 +199,6 @@ Enjoy your movie 🎬
         })
 
     return redirect("/")
-
 
 # ----------------------------
 # PAYMENT ORDER API (OPTIONAL)
