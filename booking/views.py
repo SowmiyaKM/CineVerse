@@ -109,9 +109,6 @@ def lock_seats(request, show_id):
 # ----------------------------
 # CONFIRM BOOKING (POST PAYMENT)
 # ----------------------------
-# ----------------------------
-# CONFIRM BOOKING (POST PAYMENT)
-# ----------------------------
 def confirm_booking(request, show_id):
 
     if request.method == "POST":
@@ -158,25 +155,31 @@ def confirm_booking(request, show_id):
 
         if seats.exists() and customer_email:
 
-            print("CREATING BOOKING OBJECT...")
+            try:
 
-            booking = Booking.objects.create(
-                email=customer_email,
-                show=seats[0].show,
-                seat_numbers=", ".join([s.seat_number for s in seats]),
-                payment_id=payment_id,
-                theater_name="MovieMax Cinema"
-            )
+                print("CREATING BOOKING OBJECT...")
 
-            print("BOOKING CREATED:", booking.id)
+                booking = Booking.objects.create(
+                    email=customer_email,
+                    show=seats[0].show,
+                    seat_numbers=", ".join(
+                        [s.seat_number for s in seats]
+                    ),
+                    payment_id=payment_id,
+                    theater_name="MovieMax Cinema"
+                )
 
-            print("SENDING EMAIL NOW...")
+                print("BOOKING CREATED:", booking.id)
 
-            send_booking_email_async(booking)
+                print("SENDING EMAIL NOW...")
 
-            print("EMAIL FUNCTION FINISHED")
+                send_booking_email_async(booking)
 
-            print("EMAIL FUNCTION SCHEDULED")
+                print("EMAIL FUNCTION FINISHED")
+
+            except Exception as e:
+
+                print("BOOKING/EMAIL ERROR:", str(e))
 
         else:
 
