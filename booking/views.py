@@ -110,6 +110,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 @csrf_exempt
 def confirm_booking(request, show_id):
+
     if request.method == "POST":
 
         seat_ids = request.POST.getlist("seats")
@@ -129,9 +130,6 @@ def confirm_booking(request, show_id):
                 status="locked"
             )
 
-            print("SEATS FOUND:", seats.count())
-            print("CUSTOMER EMAIL:", customer_email)
-
             if not seats.exists():
                 return render(request, "booking/timeout.html")
 
@@ -149,52 +147,50 @@ def confirm_booking(request, show_id):
                 seat.locked_until = None
                 seat.save()
 
-        if seats.exists() and customer_email:
+        if not seats.exists() or not customer_email:
+            return render(request, "booking/success.html", {
+                "seats": list(seats.values("seat_number"))
+            })
 
-            try:
-                print("CREATING BOOKING OBJECT...")
+        # -------------------------
+        # CREATE BOOKING FIRST
+        # -------------------------
+        try:
+            booking = Booking.objects.create(
+                email=customer_email,
+                show=seats[0].show,
+                seat_numbers=", ".join([s.seat_number for s in seats]),
+                payment_id=payment_id,
+                theater_name="MovieMax Cinema"
+            )
 
-                booking = Booking.objects.create(
-                    email=customer_email,
-                    show=seats[0].show,
-                    seat_numbers=", ".join([s.seat_number for s in seats]),
-                    payment_id=payment_id,
-                    theater_name="MovieMax Cinema"
-                )
+            print("BOOKING CREATED:", booking.id)
 
-                print("BOOKING CREATED:", booking.id)
-                print("SENDING EMAIL NOW...")
+        except Exception as e:
+            print("BOOKING ERROR:", e)
+            return render(request, "booking/success.html", {
+                "seats": list(seats.values("seat_number"))
+            })
 
-                # ✅ FIXED EMAIL (CORRECT STRUCTURE)
-                import threading
-                from django.core.mail import send_mail
-                from django.conf import settings
+        # -------------------------
+        # EMAIL (NON-BLOCKING, SAFE)
+        # -------------------------
+        try:
+            send_mail(
+                subject=f"🎟 Booking Confirmed - {booking.show.movie.title}",
+                message=f"""
+Seats: {booking.seat_numbers}
+Theater: {booking.theater_name}
+Enjoy your movie 🎬
+""",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[booking.email],
+                fail_silently=True
+            )
+            print("EMAIL SENT")
 
-                def send_email(email, booking_obj):
-                    try:
-                        send_mail(
-                            subject=f"Booking Confirmed - {booking_obj.show}",
-                            message=f"""
-                            Seats: {booking_obj.seat_numbers}
-                            Theater: {booking_obj.theater_name}
-                            Enjoy your movie 🎬
-                            """,
-                            from_email=settings.DEFAULT_FROM_EMAIL,
-                            recipient_list=[email],
-                            fail_silently=False
-                        )
-                    except Exception as e:
-                        print("EMAIL ERROR:", e)
-
-                threading.Thread(
-                    target=send_email,
-                    args=(booking.email, booking)
-                ).start()
-
-                print("EMAIL TRIGGERED")
-
-            except Exception as e:
-                print("BOOKING/EMAIL ERROR:", str(e))
+        except Exception as e:
+            print("EMAIL ERROR:", e)
 
         return render(request, "booking/success.html", {
             "seats": list(seats.values("seat_number"))
