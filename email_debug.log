@@ -63,3 +63,24 @@ INFO:apscheduler.executors.default:Running job "release_expired_seats (trigger: 
 INFO:apscheduler.executors.default:Job "release_expired_seats (trigger: interval[0:00:30], next run at: 2026-06-29 18:42:55 IST)" executed successfully
 INFO:apscheduler.executors.default:Running job "release_expired_seats (trigger: interval[0:00:30], next run at: 2026-06-29 18:43:25 IST)" (scheduled at 2026-06-29 18:42:55.620372+05:30)
 INFO:apscheduler.executors.default:Job "release_expired_seats (trigger: interval[0:00:30], next run at: 2026-06-29 18:43:25 IST)" executed successfully
+INFO:apscheduler.scheduler:Adding job tentatively -- it will be properly scheduled when the scheduler starts
+INFO:apscheduler.scheduler:Added job "release_expired_seats" to job store "default"
+INFO:apscheduler.scheduler:Scheduler started
+INFO:apscheduler.executors.default:Running job "release_expired_seats (trigger: interval[0:00:30], next run at: 2026-06-29 18:59:24 IST)" (scheduled at 2026-06-29 18:59:24.745335+05:30)
+INFO:apscheduler.executors.default:Job "release_expired_seats (trigger: interval[0:00:30], next run at: 2026-06-29 18:59:54 IST)" executed successfully
+INFO:apscheduler.executors.default:Running job "release_expired_seats (trigger: interval[0:00:30], next run at: 2026-06-29 19:00:24 IST)" (scheduled at 2026-06-29 18:59:54.745335+05:30)
+INFO:apscheduler.executors.default:Job "release_expired_seats (trigger: interval[0:00:30], next run at: 2026-06-29 19:00:24 IST)" executed successfully
+INFO:apscheduler.executors.default:Running job "release_expired_seats (trigger: interval[0:00:30], next run at: 2026-06-29 19:00:54 IST)" (scheduled at 2026-06-29 19:00:24.745335+05:30)
+INFO:apscheduler.executors.default:Job "release_expired_seats (trigger: interval[0:00:30], next run at: 2026-06-29 19:00:54 IST)" executed successfully
+INFO:apscheduler.executors.default:Running job "release_expired_seats (trigger: interval[0:00:30], next run at: 2026-06-29 19:01:24 IST)" (scheduled at 2026-06-29 19:00:54.745335+05:30)
+INFO:apscheduler.executors.default:Job "release_expired_seats (trigger: interval[0:00:30], next run at: 2026-06-29 19:01:24 IST)" executed successfully
+INFO:apscheduler.executors.default:Running job "release_expired_seats (trigger: interval[0:00:30], next run at: 2026-06-29 19:01:54 IST)" (scheduled at 2026-06-29 19:01:24.745335+05:30)
+INFO:apscheduler.executors.default:Job "release_expired_seats (trigger: interval[0:00:30], next run at: 2026-06-29 19:01:54 IST)" executed successfully
+INFO:apscheduler.executors.default:Running job "release_expired_seats (trigger: interval[0:00:30], next run at: 2026-06-29 19:02:24 IST)" (scheduled at 2026-06-29 19:01:54.745335+05:30)
+INFO:apscheduler.executors.default:Job "release_expired_seats (trigger: interval[0:00:30], next run at: 2026-06-29 19:02:24 IST)" executed successfully
+INFO:apscheduler.executors.default:Running job "release_expired_seats (trigger: interval[0:00:30], next run at: 2026-06-29 19:02:54 IST)" (scheduled at 2026-06-29 19:02:24.745335+05:30)
+INFO:apscheduler.executors.default:Job "release_expired_seats (trigger: interval[0:00:30], next run at: 2026-06-29 19:02:54 IST)" executed successfully
+INFO:apscheduler.executors.default:Running job "release_expired_seats (trigger: interval[0:00:30], next run at: 2026-06-29 19:03:24 IST)" (scheduled at 2026-06-29 19:02:54.745335+05:30)
+INFO:apscheduler.executors.default:Job "release_expired_seats (trigger: interval[0:00:30], next run at: 2026-06-29 19:03:24 IST)" executed successfully
+INFO:apscheduler.executors.default:Running job "release_expired_seats (trigger: interval[0:00:30], next run at: 2026-06-29 19:03:54 IST)" (scheduled at 2026-06-29 19:03:24.745335+05:30)
+INFO:apscheduler.executors.default:Job "release_expired_seats (trigger: interval[0:00:30], next run at: 2026-06-29 19:03:54 IST)" executed successfully
