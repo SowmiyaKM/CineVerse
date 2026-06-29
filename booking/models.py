@@ -1,6 +1,11 @@
 from django.db import models
 from django.utils import timezone
 from datetime import timedelta
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.core.mail import send_mail
+from django.conf import settings
+
 from movies.models import Movie
 
 
@@ -70,7 +75,6 @@ class Seat(models.Model):
         return f"{self.show.movie.title} - {self.seat_number}"
 
 
-# NEW MODEL (ADDED ONLY)
 class Booking(models.Model):
 
     email = models.EmailField()
@@ -107,6 +111,37 @@ class Booking(models.Model):
 
     def __str__(self):
         return f"{self.email} - {self.show.movie.title}"
+
+
+# 🚀 EMAIL TRIGGER (THIS IS THE FIX)
+@receiver(post_save, sender=Booking)
+def send_booking_email(sender, instance, created, **kwargs):
+
+    if created and not instance.email_sent:
+
+        try:
+            send_mail(
+                subject=f"🎟 Booking Confirmed - {instance.show.movie.title}",
+                message=f"""
+Hi,
+
+Your booking is confirmed 🎬
+
+Seats: {instance.seat_numbers}
+Theater: {instance.theater_name}
+
+Enjoy your movie!
+""",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[instance.email],
+                fail_silently=False
+            )
+
+            instance.email_sent = True
+            instance.save(update_fields=['email_sent'])
+
+        except Exception as e:
+            print("EMAIL ERROR:", e)
 
 
 # IMPORTANT: Auto cleanup function
