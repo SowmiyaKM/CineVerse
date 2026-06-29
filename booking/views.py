@@ -5,10 +5,7 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.mail import send_mail
 from django.conf import settings
-
 import json
-import resend
-
 from .models import Booking, Show, Seat
 from .payment_gateway import create_razorpay_order
 from .payment_utils import verify_payment_signature
@@ -174,34 +171,40 @@ def confirm_booking(request, show_id):
         except Exception as e:
             print("BOOKING ERROR:", str(e))
             raise
-
+            
         # -------------------------
-        # EMAIL (RESEND DEBUG)
+        # EMAIL (GMAIL SMTP)
         # -------------------------
         try:
 
-            print("STEP 1: SETTING API KEY")
-            resend.api_key = settings.RESEND_API_KEY
+            print("SENDING EMAIL...")
 
-            print("STEP 2: SENDING EMAIL")
+            send_mail(
+                subject="🎟 Booking Confirmed - CineVerse",
+                message=f"""
+        Hello,
 
-            response = resend.Emails.send({
-                "from": "onboarding@resend.dev",
-                "to": booking.email,
-                "subject": "Booking Confirmed",
-                "html": f"""
-                <h1>Booking Confirmed</h1>
-                <p>Seats: {booking.seat_numbers}</p>
-                """
-            })
+        Your booking has been confirmed.
 
-            print("STEP 3: EMAIL SENT")
-            print(response)
+        Movie: {booking.show.movie.title}
+        Seats: {booking.seat_numbers}
+        Theater: {booking.theater_name}
+
+        Enjoy your movie!
+
+        - CineVerse
+        """,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[booking.email],
+                fail_silently=False
+            )
+
+            print("EMAIL SENT SUCCESSFULLY")
 
         except Exception as e:
-            print("STEP 3: EMAIL FAILED")
+
+            print("EMAIL FAILED:")
             print(str(e))
-            raise
 
         return render(request, "booking/success.html", {
             "seats": list(seats.values("seat_number"))
