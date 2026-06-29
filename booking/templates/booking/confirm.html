@@ -325,9 +325,22 @@ document.getElementById("payBtn").addEventListener("click",function(){
                 },
                 body:formData
             })
-            .then(function(){
-                window.location.replace("/");
+            .then(function(response){
+                return response.text();
             })
+            .then(function(html){
+
+                document.open();
+                document.write(html);
+                document.close();
+
+            })
+            .catch(function(error){
+
+                console.log(error);
+                showToast("Server error.");
+
+            });
             .catch(function(){
                 showToast("Server error.");
             });

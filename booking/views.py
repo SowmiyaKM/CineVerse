@@ -156,6 +156,7 @@ def confirm_booking(request, show_id):
         # -------------------------
         # CREATE BOOKING FIRST
         # -------------------------
+        print("ENTERED BOOKING SECTION")
         try:
             booking = Booking.objects.create(
                 email=customer_email,
