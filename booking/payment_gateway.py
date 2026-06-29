@@ -6,17 +6,22 @@ client = razorpay.Client(auth=(
     settings.RAZORPAY_SECRET
 ))
 
+
 def create_razorpay_order(amount, currency="INR"):
 
-    if not amount:
+    if amount is None:
         raise ValueError("Amount is required")
 
+    amount = int(amount)
+
+    if amount <= 0:
+        raise ValueError("Invalid amount")
+
     order_data = {
-        "amount": int(amount),
+        "amount": amount,
         "currency": currency,
         "payment_capture": 1
     }
 
-    # IMPORTANT: no try/except hiding errors
     order = client.order.create(order_data)
     return order

@@ -8,7 +8,6 @@ import json
 from django.conf import settings
 
 from .models import Booking, Show, Seat
-from .email_service import send_booking_email_async
 from .payment_gateway import create_razorpay_order
 from .payment_utils import verify_payment_signature
 from .idempotency import is_duplicate, mark_processed
@@ -20,7 +19,6 @@ from .idempotency import is_duplicate, mark_processed
 def test_email(request):
 
     try:
-
         send_mail(
             "TEST EMAIL",
             "If you received this, Gmail SMTP is working.",
@@ -32,7 +30,6 @@ def test_email(request):
         return HttpResponse("EMAIL SENT SUCCESSFULLY")
 
     except Exception as e:
-
         return HttpResponse(f"EMAIL ERROR: {e}")
 
 
@@ -134,17 +131,14 @@ def confirm_booking(request, show_id):
             print("CUSTOMER EMAIL:", customer_email)
 
             if not seats.exists():
-                print("NO LOCKED SEATS FOUND")
                 return render(request, "booking/timeout.html")
 
-            expired = False
-
-            for seat in seats:
-                if seat.locked_until and seat.locked_until < timezone.now():
-                    expired = True
+            expired = any(
+                seat.locked_until and seat.locked_until < timezone.now()
+                for seat in seats
+            )
 
             if expired:
-                print("SEAT LOCK EXPIRED")
                 return render(request, "booking/timeout.html")
 
             for seat in seats:
@@ -156,42 +150,51 @@ def confirm_booking(request, show_id):
         if seats.exists() and customer_email:
 
             try:
-
                 print("CREATING BOOKING OBJECT...")
 
                 booking = Booking.objects.create(
                     email=customer_email,
                     show=seats[0].show,
-                    seat_numbers=", ".join(
-                        [s.seat_number for s in seats]
-                    ),
+                    seat_numbers=", ".join([s.seat_number for s in seats]),
                     payment_id=payment_id,
                     theater_name="MovieMax Cinema"
                 )
 
                 print("BOOKING CREATED:", booking.id)
-
                 print("SENDING EMAIL NOW...")
 
-                send_booking_email_async(booking)
+                # ✅ FIXED EMAIL (NO BROKEN ASYNC)
+                try:
+                    send_mail(
+                        subject=f"Booking Confirmed - {booking.show}",
+                        message=f"""
+Hi,
 
-                print("EMAIL FUNCTION FINISHED")
+Your booking is confirmed!
+
+Seats: {booking.seat_numbers}
+Theater: {booking.theater_name}
+
+Enjoy your movie 🎬
+""",
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[booking.email],
+                        fail_silently=False
+                    )
+                except Exception as e:
+                    print("EMAIL SEND ERROR:", e)
+
+                print("EMAIL SENT (OR ATTEMPTED)")
 
             except Exception as e:
-
                 print("BOOKING/EMAIL ERROR:", str(e))
-
-        else:
-
-            print("BOOKING NOT CREATED")
-            print("SEATS EXISTS:", seats.exists())
-            print("EMAIL VALUE:", customer_email)
 
         return render(request, "booking/success.html", {
             "seats": list(seats.values("seat_number"))
         })
 
     return redirect("/")
+
 
 # ----------------------------
 # PAYMENT ORDER API (OPTIONAL)
@@ -221,16 +224,7 @@ def razorpay_webhook(request):
 
         data = json.loads(request.body)
 
-        payment_entity = data.get(
-            "payload",
-            {}
-        ).get(
-            "payment",
-            {}
-        ).get(
-            "entity",
-            {}
-        )
+        payment_entity = data.get("payload", {}).get("payment", {}).get("entity", {})
 
         payment_id = payment_entity.get("id")
         order_id = payment_entity.get("order_id")
@@ -239,15 +233,8 @@ def razorpay_webhook(request):
         if is_duplicate(payment_id):
             return JsonResponse({"status": "duplicate ignored"})
 
-        if not verify_payment_signature(
-            order_id,
-            payment_id,
-            signature
-        ):
-            return JsonResponse(
-                {"status": "invalid signature"},
-                status=400
-            )
+        if not verify_payment_signature(order_id, payment_id, signature):
+            return JsonResponse({"status": "invalid signature"}, status=400)
 
         mark_processed(payment_id)
 
