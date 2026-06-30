@@ -22,9 +22,5 @@ urlpatterns = [
     path("test-email/", views.test_email, name="test_email"),
 
     # Admin Analytics Dashboard
-    path(
-        "admin/analytics/",
-        admin_analytics,
-        name="admin_analytics"
-    ),
+    path("admin/dashboard/", views.admin_dashboard, name="admin_dashboard")
 ]

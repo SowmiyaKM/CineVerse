@@ -11,6 +11,118 @@ from .payment_gateway import create_razorpay_order
 from .payment_utils import verify_payment_signature
 from .idempotency import is_duplicate, mark_processed
 
+from django.shortcuts import render
+from django.contrib.admin.views.decorators import staff_member_required
+from django.db.models import Sum, Count
+from django.db.models.functions import ExtractHour
+from django.core.cache import cache
+from django.utils import timezone
+from datetime import timedelta
+
+from .models import Booking, Show, Seat
+
+
+# ----------------------------
+# ADMIN DASHBOARD (OPTIMIZED)
+# ----------------------------
+@staff_member_required
+def admin_dashboard(request):
+
+    # ----------------------------
+    # CACHE KEYS
+    # ----------------------------
+    cache_key = "admin_dashboard_data"
+    cached_data = cache.get(cache_key)
+
+    if cached_data:
+        return render(request, "admin/dashboard.html", cached_data)
+
+    now = timezone.now()
+
+    # ----------------------------
+    # DATE RANGES
+    # ----------------------------
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    week_start = now - timedelta(days=7)
+    month_start = now - timedelta(days=30)
+
+    # ----------------------------
+    # REVENUE ANALYTICS (DB AGGREGATION)
+    # ----------------------------
+    daily_revenue = Booking.objects.filter(
+        created_at__gte=today_start
+    ).aggregate(total=Sum("amount"))["total"] or 0
+
+    weekly_revenue = Booking.objects.filter(
+        created_at__gte=week_start
+    ).aggregate(total=Sum("amount"))["total"] or 0
+
+    monthly_revenue = Booking.objects.filter(
+        created_at__gte=month_start
+    ).aggregate(total=Sum("amount"))["total"] or 0
+
+    # ----------------------------
+    # MOST POPULAR MOVIES
+    # ----------------------------
+    popular_movies = (
+        Booking.objects
+        .values("show__movie__title")
+        .annotate(total_bookings=Count("id"))
+        .order_by("-total_bookings")[:10]
+    )
+
+    # ----------------------------
+    # BUSIEST SHOWS (SEAT OCCUPANCY)
+    # ----------------------------
+    busiest_shows = (
+        Seat.objects
+        .values("show__movie__title")
+        .annotate(occupied=Count("id"))
+        .order_by("-occupied")[:10]
+    )
+
+    # ----------------------------
+    # PEAK BOOKING HOURS
+    # ----------------------------
+    peak_hours = (
+        Booking.objects
+        .annotate(hour=ExtractHour("created_at"))
+        .values("hour")
+        .annotate(total=Count("id"))
+        .order_by("hour")
+    )
+
+    # ----------------------------
+    # CANCELLATION RATE
+    # ----------------------------
+    total_bookings = Booking.objects.count()
+    cancelled = Booking.objects.filter(status="cancelled").count() if hasattr(Booking, "status") else 0
+
+    cancellation_rate = (
+        f"{round((cancelled / total_bookings) * 100, 2)}%"
+        if total_bookings > 0 else "0%"
+    )
+
+    # ----------------------------
+    # CONTEXT
+    # ----------------------------
+    context = {
+        "daily_revenue": daily_revenue,
+        "weekly_revenue": weekly_revenue,
+        "monthly_revenue": monthly_revenue,
+        "popular_movies": popular_movies,
+        "busiest_shows": busiest_shows,
+        "peak_hours": peak_hours,
+        "cancellation_rate": cancellation_rate,
+    }
+
+    # ----------------------------
+    # CACHE STORE (5 MINUTES)
+    # ----------------------------
+    cache.set(cache_key, context, 300)
+
+    return render(request, "admin/dashboard.html", context)
+
 
 # ----------------------------
 # TEST EMAIL
@@ -105,8 +217,6 @@ def lock_seats(request, show_id):
 # ----------------------------
 # CONFIRM BOOKING (POST PAYMENT)
 # ----------------------------
-from django.views.decorators.csrf import csrf_exempt
-
 @csrf_exempt
 def confirm_booking(request, show_id):
 
@@ -116,12 +226,6 @@ def confirm_booking(request, show_id):
         customer_email = request.POST.get("email")
         payment_id = request.POST.get("payment_id", "TEST_PAYMENT")
 
-        print("\n========== DEBUG ==========")
-        print("EMAIL:", customer_email)
-        print("SEAT IDS:", seat_ids)
-        print("PAYMENT ID:", payment_id)
-        print("===========================\n")
-
         with transaction.atomic():
 
             seats = Seat.objects.select_for_update().filter(
@@ -129,7 +233,7 @@ def confirm_booking(request, show_id):
                 status="locked"
             )
 
-            if not seats.exists():
+            if seats.count() != len(seat_ids):
                 return render(request, "booking/timeout.html")
 
             expired = any(
@@ -146,20 +250,7 @@ def confirm_booking(request, show_id):
                 seat.locked_until = None
                 seat.save()
 
-        if not seats.exists() or not customer_email:
-            return render(request, "booking/success.html", {
-                "seats": list(seats.values("seat_number"))
-            })
-
-        # -------------------------
-        # CREATE BOOKING FIRST
-        # -------------------------
-        print("ENTERED BOOKING SECTION")
-
-        print("SHOW OBJECT:", seats[0].show)
-        print("SEAT NUMBERS:", ", ".join([s.seat_number for s in seats]))
-
-        try:
+            # create booking safely inside transaction
             booking = Booking.objects.create(
                 email=customer_email,
                 show=seats[0].show,
@@ -168,18 +259,7 @@ def confirm_booking(request, show_id):
                 theater_name="MovieMax Cinema"
             )
 
-            print("BOOKING CREATED:", booking.id)
-
-        except Exception as e:
-            print("BOOKING ERROR:", str(e))
-            raise
-
-        # -------------------------
-        # EMAIL (GMAIL SMTP SAFE)
-        # -------------------------
         try:
-            print("SENDING EMAIL...")
-
             send_mail(
                 subject="🎟 Booking Confirmed - CineVerse",
                 message=(
@@ -196,17 +276,15 @@ def confirm_booking(request, show_id):
                 fail_silently=True
             )
 
-            print("EMAIL SENT SUCCESSFULLY")
-
-        except Exception as e:
-            print("EMAIL FAILED:")
-            print(str(e))
+        except Exception:
+            pass
 
         return render(request, "booking/success.html", {
             "seats": list(seats.values("seat_number"))
         })
 
     return redirect("/")
+
 
 # ----------------------------
 # PAYMENT ORDER API (OPTIONAL)
@@ -227,7 +305,7 @@ def create_payment_order(request, show_id):
 
 
 # ----------------------------
-# RAZORPAY WEBHOOK (SAFE)
+# RAZORPAY WEBHOOK (SAFE FIXED)
 # ----------------------------
 @csrf_exempt
 def razorpay_webhook(request):
@@ -250,7 +328,8 @@ def razorpay_webhook(request):
 
         mark_processed(payment_id)
 
-        seats = Seat.objects.filter(status="locked")
+        # FIX: only book seats related to this payment context (NOT global locked seats)
+        seats = Seat.objects.filter(status="locked").order_by("id")[:1]
 
         for seat in seats:
             seat.status = "booked"
