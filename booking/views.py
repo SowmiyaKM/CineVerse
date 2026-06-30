@@ -268,14 +268,12 @@ def confirm_booking(request, show_id):
                     f"Movie: {booking.show.movie.title}\n"
                     f"Seats: {booking.seat_numbers}\n"
                     f"Theater: {booking.theater_name}\n\n"
-                    f"Enjoy your movie!\n\n"
                     f"- CineVerse"
                 ),
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[booking.email],
                 fail_silently=True
             )
-
         except Exception:
             pass
 
