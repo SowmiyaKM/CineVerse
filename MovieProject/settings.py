@@ -1,6 +1,6 @@
 from pathlib import Path
 import logging
-
+import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -120,10 +120,9 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-
-EMAIL_HOST_USER = 'sowmiyakmk@gmail.com'
-EMAIL_HOST_PASSWORD = 'fofyvtcusjrrhlig'
-DEFAULT_FROM_EMAIL = 'CineVerse <sowmiyakmk@gmail.com>'
+EMAIL_HOST_USER ='sowmiyakmk@gmail.com'
+EMAIL_HOST_PASSWORD = 'ekrlfavipxlwwneh'
+DEFAULT_FROM_EMAIL = 'sowmiyakmk@gmail.com'
 
 # ----------------------------
 # LOGGING (FOR EMAIL DEBUGGING)
@@ -152,4 +151,4 @@ LOGGING = {
     },
 }
 
-RESEND_API_KEY = "re_74t5p4uM_Ed4YYzL1DdNs8sD2VFSiwXuW"
+RESEND_API_KEY = os.getenv("RESEND_API_KEY")

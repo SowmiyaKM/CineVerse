@@ -1,0 +1,60 @@
+[33m71554f9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m email
+[33m127ad83[m Fix Resend environment variable
+[33me33f58c[m redeploy
+[33md750370[m Show full Resend error
+[33m9074540[m Use Resend for booking emails
+[33mdb2c1d0[m confrim page changes
+[33m190e7df[m email testing
+[33maf5d2ce[m email sending
+[33m8c18d16[m send email test
+[33mf80276c[m find error
+[33ma7a361a[m changes again
+[33mbb96899[m update email fix
+[33m0afee08[m redirect changes
+[33m68ad1d6[m email changes
+[33maca4dea[m Email
+[33m3ca0463[m Add email debug
+[33me72e48e[m new change
+[33m58a14ca[m Email check
+[33m0b4ff8e[m email tasks
+[33mf9c3aa7[m fixed email crash in booking flow
+[33m2bcaef6[m removed resend and switched to gmail smtp
+[33m1065f95[m remove post_save email signal
+[33m4bb4143[m Final deployment
+[33m8429586[m Change made
+[33ma788e45[m Book button
+[33m56c103b[m Debug email issue
+[33m7360bb7[m email resend
+[33mbdd0881[m Email
+[33m995244a[m add resend dependency
+[33md64562b[m resend email
+[33m2dfea32[m tested final view
+[33m3116322[m model changes
+[33m00d1578[m final email
+[33m5d40c15[m redirect changes
+[33m7cfba03[m last step
+[33m587b521[m changes made
+[33md6924aa[m final hope
+[33m2fd2112[m Final change
+[33m0136f19[m redeployment
+[33mc2b2294[m final
+[33md783508[m Fix booking creation and email confirmation flow
+[33m2e84266[m final change
+[33m9b909bc[m pay changes
+[33m9e22c33[m Home page issue
+[33me8eac97[m Email
+[33mc10a2f2[m same change email
+[33m644bffa[m email
+[33mcd3f6db[m Emaillll finallll
+[33m0572322[m email changes
+[33m9a4c473[m Email changes
+[33m6b8905f[m Final hope
+[33m2301842[m final changes
+[33m281c997[m payment changes
+[33m4ecfbfa[m no changes
+[33mfbf0c41[m Printing
+[33me292c9d[m Razorpay
+[33m28f8b99[m Host changes
+[33mac9ce5e[m Settings changed
+[33mc1f6f21[m Add requirements.txt for deployment
+[33m58a9c65[m first commit
