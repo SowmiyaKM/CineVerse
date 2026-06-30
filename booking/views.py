@@ -274,7 +274,7 @@ def confirm_booking(request, show_id):
                 recipient_list=[booking.email],
                 fail_silently=True
             )
-        except Exception:
+        except:
             pass
 
         return render(request, "booking/success.html", {
